@@ -95,8 +95,10 @@ def getGravatarPath(userName, email):
 
 def parse_params(params):
     color = None
+
+    # Color is #RRGGBBAA
     if 'color' in params:
-        if re.match(r'^[0-9a-fA-F]{6}$', params['color']):
+        if re.match(r'^[0-9a-fA-F]{8}$', params['color']):
             color = params['color'].lower()
 
     scale = None
@@ -106,21 +108,15 @@ def parse_params(params):
         except ValueError:
             pass
 
-    stale = False
-    if 'stale' in params:
-        stale = True
+    return (color, scale)
 
-    return (color, scale, stale)
-
-def getAvatarCacheName(userName, color, scale, stale):
+def getAvatarCacheName(userName, color, scale):
     # See if we can return cached image
     image_name = userName
     if color:
         image_name += "_%s" % color
     if scale:
         image_name += "_%s" % scale
-    if stale:
-        image_name += '_stale'
     image_name += '.png'
     return op.join(CACHE_DIR, image_name);
 
@@ -128,8 +124,8 @@ def getAvatarCacheName(userName, color, scale, stale):
 
 def renderAvatar(request, userName):
     # Parse junk
-    (color, scale, stale) = parse_params(request.REQUEST)
-    cachedName = getAvatarCacheName(userName, color, scale, stale)
+    (color, scale) = parse_params(request.REQUEST)
+    cachedName = getAvatarCacheName(userName, color, scale)
 
     if os.path.exists(cachedName) and getAge(cachedName) > AVATAR_CACHE_SECONDS:
         os.unlink(cachedName)
@@ -146,7 +142,7 @@ def renderAvatar(request, userName):
         placardGray = placard.convert("L")
         placardColored = ImageOps.colorize(placardGray, 
                                            "#000000", 
-                                           "#" + color);
+                                           "#" + color[0:6]);
         placard = placardColored.convert("RGBA");
         placard.putalpha(bands[3]);
 
@@ -171,10 +167,11 @@ def renderAvatar(request, userName):
     avatar = avatar.resize((36,36))
     placard.paste(avatar, (10, 8))
 
-    # Make the image transparent for stale imagery
-    if stale:
+    # Make the image optionally transparent
+    if color:
+        alpha = int(color[6:8], 16) / 255.0
         bands = placard.split()
-        m = lambda x: x * .5
+        m = lambda x: x * alpha
         placard.putalpha(Image.eval(bands[3], m))
     
     # Optionally scale image
