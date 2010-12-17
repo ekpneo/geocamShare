@@ -54,11 +54,19 @@
     background: -moz-linear-gradient(center top,rgb(112,112,112) 0%,rgb(94,94,94) 51%,rgb(57,57,57) 52%);
   }
 
-  .map-infoclose {
-    padding: 0px 8px;
-    padding-top: 14px;
+  .map-infoavatar {
+    width: 36px;
+    padding: 0px 4px;
+    padding-top: 4px;
     float: left;
-    cursor: pointer;
+  }
+  
+  .map-infoavatar img {
+    width: 36px; height: 36px;
+    border-top: solid black 1px;
+    border-left: solid black 1px;
+    border-bottom: solid #909090 1px;
+    border-right: solid #909090 1px;
   }
 
   .map-infotext {
@@ -66,7 +74,7 @@
     text-shadow: 0 -1px 0 #000;
     color: #fff;
     font-family: Helvetica Neue, Helvetica, arial;
-    margin-left: 34px;
+    margin-left: 46px;
     padding: 4px 15px 4px 8px;
     white-space: nowrap;
   }
@@ -227,8 +235,10 @@
             infoBubble.open(mapG, this);
 
             infoBubble.geoFeature = feature;
-            $(infoBubble.getContent()).find('.map-infouser').html(feature.properties.userName);
-            $(infoBubble.getContent()).find('.map-infotime').html(feature.properties.updated);
+            var content = $(infoBubble.getContent());
+            content.find('.map-infouser').html(feature.properties.userName);
+            content.find('.map-infotime').html(feature.properties.updated);
+            content.find('.map-infoavatar img').attr('src', '../avatar/' + feature.properties.userName);
             infoBubble.content_changed();
           });
         }
@@ -331,9 +341,6 @@
       });
 
       content = $('#infobubble-content').clone();
-      $(content).find('.map-infoclose').click(function() {
-        infoBubble.close();
-      });
       infoBubble.setContent(content[0]);
 
       $('#loading').fadeOut();
@@ -486,8 +493,8 @@
 
   <div style="display: none">
     <div id="infobubble-content">
-      <div id="infobubble-close" class="map-infoclose">
-        <img src="{{ settings.MEDIA_URL }}external/close_button.gif">
+      <div id="infobubble-avatar" class="map-infoavatar">
+	<img src="#" width="36px" height="36px" />
       </div>
       <div id="infobubble-text" class="map-infotext">
 	<div id="infobubble-user" class="map-infouser">Username</div>

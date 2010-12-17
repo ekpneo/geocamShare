@@ -122,6 +122,31 @@ def getAvatarCacheName(userName, color, scale):
 
     return 
 
+def getAvatar(userName):
+    """Return the PIL avatar image for the user.  Goes: Avatar, gravatar, letter"""
+    avatar = None
+    avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
+    if op.exists(avatar_file):
+        avatar = Image.open(avatar_file)
+    else:
+        featureUser = User.objects.get(username=userName)
+        gravPath = getGravatarPath(userName, featureUser.email)
+        if gravPath:
+            avatar = Image.open(gravPath)
+        else:
+            avatar = Image.new("RGB", (8, 8), "#FFFFFF")
+            font = ImageFont.load_default()
+            draw  = ImageDraw.Draw(avatar)
+            draw.text((1, -2), userName.upper()[0], font=font, fill=0)
+            del draw
+    avatar = avatar.resize((36,36))
+    return avatar
+
+def renderAvatar(request, userName):
+    strio = StringIO()
+    getAvatar(userName).save(strio, "PNG")
+    return strio.getvalue()    
+
 def renderPlacard(request, userName):
     # Parse junk
     (color, scale) = parse_params(request.REQUEST)
@@ -146,25 +171,8 @@ def renderPlacard(request, userName):
         placard = placardColored.convert("RGBA");
         placard.putalpha(bands[3]);
 
-    # Find avatar, gravatar or lettered image
-    avatar = None
-    avatar_file = op.join(AVATAR_DIR, "%s.png" % userName)
-    if op.exists(avatar_file):
-        avatar = Image.open(avatar_file)
-    else:
-        featureUser = User.objects.get(username=userName)
-        gravPath = getGravatarPath(userName, featureUser.email)
-        if gravPath:
-            avatar = Image.open(gravPath)
-        else:
-            avatar = Image.new("RGB", (8, 8), "#FFFFFF")
-            font = ImageFont.load_default()
-            draw  = ImageDraw.Draw(avatar)
-            draw.text((1, -2), userName.upper()[0], font=font, fill=0)
-            del draw
-    
-    # Paste generated/opened image into placard
-    avatar = avatar.resize((36,36))
+    # Find avatar and paste into placard
+    avatar = getAvatar(userName)
     placard.paste(avatar, (10, 8))
 
     # Make the image optionally transparent

@@ -19,6 +19,8 @@ urlpatterns = patterns(
      {'readOnly': True}),
     (r'^placard/(\S+)', views.getPlacard,
      {'readOnly': True}),
+    (r'^avatar/(\S+)', views.getAvatar,
+     {'readOnly': True}),
     (r'^liveMap/$', views.getLiveMap,
      {'readOnly': True}),
     (r'^liveMap.kml$', views.getKmlNetworkLink,
