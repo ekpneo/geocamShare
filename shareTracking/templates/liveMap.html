@@ -355,7 +355,8 @@
         new google.maps.Point(9, 9));
       locationMarker = new google.maps.Marker({
         position: pos,
-        icon: icon
+        icon: icon,
+        zIndex: 10000
       });
       locationMarker.setMap(mapG);
     }
