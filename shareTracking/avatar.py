@@ -122,7 +122,7 @@ def getAvatarCacheName(userName, color, scale):
 
     return 
 
-def renderAvatar(request, userName):
+def renderPlacard(request, userName):
     # Parse junk
     (color, scale) = parse_params(request.REQUEST)
     cachedName = getAvatarCacheName(userName, color, scale)

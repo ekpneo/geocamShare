@@ -17,7 +17,7 @@ from django.contrib.auth.models import User
 
 from share2.shareCore.utils import anyjson as json
 from share2.shareTracking.models import Resource, ResourcePosition, PastResourcePosition
-from share2.shareTracking.avatar import renderAvatar
+from share2.shareTracking.avatar import renderPlacard
 
 class ExampleError(Exception):
     pass
@@ -145,6 +145,7 @@ def getLiveMap(request):
                               { 'userData': dumps(userData) },
                               context_instance=RequestContext(request))
 
-def getIcon(request, userName):
-    return HttpResponse(renderAvatar(request, userName),
+
+def getPlacard(request, userName):
+    return HttpResponse(renderPlacard(request, userName),
                         mimetype='image/png')

@@ -17,7 +17,7 @@ urlpatterns = patterns(
 
     (r'^resources.json$', views.getResourcesJson,
      {'readOnly': True}),
-    (r'^icon/(\S+)', views.getIcon,
+    (r'^placard/(\S+)', views.getPlacard,
      {'readOnly': True}),
     (r'^liveMap/$', views.getLiveMap,
      {'readOnly': True}),
