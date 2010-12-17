@@ -159,6 +159,10 @@
     return (getTimeSince(feature.properties.timestamp) > STALE_TIMEOUT);
   }
 
+  var COLORS = [ "ff0000", "00ff00", "0000ff", "ff00ff", "00ffff", "ffff00",
+                 "ffffff", "800000", "008000", "000080", "800080", "008080",
+                 "808000", "c0c0c0", "808080", "000000" ];
+
   function iconURL(feature) {
     var name = feature.properties.userName;
     var icon = '../icon/' + name;
@@ -171,8 +175,12 @@
     if (isFeatureStale(feature))
       iconParams.push('stale=true');
 
-    if (user.loggedIn && user.userName == name)
-      iconParams.push('color=00ff00');
+    // determine color.. last byte of uid % 16
+    color = parseInt("0x" + feature.id.substr(feature.id.length - 2, 2)) % 16;
+    iconParams.push('color=' + COLORS[color]);
+
+    //if (user.loggedIn && user.userName == name)
+    //  iconParams.push('color=00ff00');
 
     if (iconParams.length > 0)
       icon += "?" + iconParams.join('&');
