@@ -170,6 +170,12 @@ def renderAvatar(request, userName):
     # Paste generated/opened image into placard
     avatar = avatar.resize((36,36))
     placard.paste(avatar, (10, 8))
+
+    # Make the image transparent for stale imagery
+    if stale:
+        bands = placard.split()
+        m = lambda x: x * .5
+        placard.putalpha(Image.eval(bands[3], m))
     
     # Optionally scale image
     if scale:

@@ -124,6 +124,9 @@
 
   var infoBubble = null;
 
+  // Timeout is 5 minutes for stale
+  var STALE_TIMEOUT = 5 * 60 * 1000;
+
   /* Do something when the user clicks
   $('#infobubble-text').click(function() {
     return;
@@ -152,6 +155,31 @@
     return Math.round(days) + " days ago";
   }
 
+  function isFeatureStale(feature) {
+    return (getTimeSince(feature.properties.timestamp) > STALE_TIMEOUT);
+  }
+
+  function iconURL(feature) {
+    var name = feature.properties.userName;
+    var icon = '../icon/' + name;
+
+    var iconParams = [];
+
+    if (isMobileBrowser())
+      iconParams.push('scale=0.65');
+
+    if (isFeatureStale(feature))
+      iconParams.push('stale=true');
+
+    if (user.loggedIn && user.userName == name)
+      iconParams.push('color=00ff00');
+
+    if (iconParams.length > 0)
+      icon += "?" + iconParams.join('&');
+
+    return icon;
+  }
+
   function handleResourcePositionsResponse(response) {
     if (response.result == null) return;
 
@@ -167,20 +195,6 @@
         markerBounds.extend(pos);
         var marker = markersByIdG[feature.id];
         if (marker == null) {       
-          var name = feature.properties.userName;
-          var icon = '../icon/' + name;
-
-          var iconParams = [];
-
-          if (isMobileBrowser())
-            iconParams.push('scale=0.65');
-
-          if (user.loggedIn && user.userName == name)
-            iconParams.push('color=00ff00');
-
-          if (iconParams.length > 0)
-            icon += "?" + iconParams.join('&');
-
           if (feature.properties.displayName != null) {
             var title = feature.properties.displayName;
           } else {
@@ -190,7 +204,7 @@
           marker = new google.maps.Marker({
             position: pos,
             title: title,
-            icon: icon
+            icon: iconURL(feature)
           });
           marker.setMap(mapG);
           markersByIdG[feature.id] = marker;
@@ -215,6 +229,10 @@
         if (!pos.equals(marker.position)) {
           marker.setPosition(pos);
         }
+
+        var icon = iconURL(feature);
+        if (icon != marker.getIcon())
+          marker.setIcon(icon);
 
         if (haveLocation && feature.properties.userName == user.userName)
           marker.setVisible(false);
