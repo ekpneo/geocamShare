@@ -182,7 +182,7 @@
 
     // determine color.. last byte of uid % 16
     var colorIdx = 
-      parseInt("0x" + feature.id.substr(feature.id.length - 2, 2)) % 16;
+      parseInt("0x" + feature.id.substr(feature.id.length - 2, 2)) % COLORS.length;
     var color = COLORS[colorIdx];
     if (isFeatureStale(feature))
 	color += '80';
